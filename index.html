@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Generator</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #060b13;
+            background-image: url("layered-waves-haikei.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* تعديل الكارد ليصبح بتأثير زجاجي (Glassmorphism) */
+        .container {
+            background: rgba(11, 19, 32, 0.6);
+            /* خلفية شبه شفافة */
+            backdrop-filter: blur(16px);
+            /* تأثير ضبابي زجاجي للخلفية */
+            -webkit-backdrop-filter: blur(16px);
+            /* لدعم متصفحات سفاري */
+            padding: 30px 24px 25px 24px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            /* توليفة ظلال لإبراز تأثير العمق والزجاج */
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            /* حافة زجاجية لامعة */
+        }
+
+        .header-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 15px;
+        }
+
+        .header-icons svg {
+            width: 26px;
+            height: 26px;
+            opacity: 0.9;
+        }
+
+        h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+        }
+
+        /* الخط المضيء تحت العنوان */
+        .gradient-line {
+            height: 3px;
+            width: 50px;
+            background: linear-gradient(90deg, #ff6b6b, #ec4899, #d946ef);
+            margin: 0 auto 16px auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            /* تفتيح الخط قليلاً ليظهر بوضوح فوق الزجاج */
+            font-size: 11px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            padding: 0 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            outline: none;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            background: rgba(15, 23, 42, 0.6);
+            /* دمج الإدخال مع الثيم الزجاجي */
+            color: white;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #ec4899;
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f43f5e 0%, #d946ef 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-generate:hover {
+            opacity: 0.9;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 14px;
+            border-radius: 16px;
+            margin: 20px 0;
+            display: inline-block;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        #qr-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #qr-box canvas,
+        #qr-box img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header-icons">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path
+                    d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+                <circle cx="12" cy="12" r="1" />
+            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path
+                    d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+                <rect x="9" y="9" width="6" height="6" rx="1" />
+            </svg>
+        </div>
+
+        <h1>QR Code<br>Generator</h1>
+
+        <div class="gradient-line"></div>
+
+        <p class="subtitle">Enter any text or URL to generate your QR code</p>
+
+        <input type="text" id="text" placeholder="1e293b" value="1e293b">
+
+        <button class="btn-generate" onclick="generateQR()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+            </svg>
+            Generate QR Code
+        </button>
+
+        <div class="qr-wrapper">
+            <div id="qr-box"></div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-action" onclick="downloadQR()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Download
+            </button>
+            <button class="btn-action" onclick="shareQR()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                </svg>
+                Share
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        window.onload = function () {
+            generateQR();
+        };
+
+        function generateQR() {
+            let text = document.getElementById("text").value;
+            let qrBox = document.getElementById("qr-box");
+
+            qrBox.innerHTML = "";
+
+            if (text.trim() !== "") {
+                new QRCode(qrBox, {
+                    text: text,
+                    width: 160,
+                    height: 160,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                alert("Please enter some text or a URL first!");
+            }
+        }
+
+        function downloadQR() {
+            let qrImg = document.querySelector("#qr-box img");
+            let qrCanvas = document.querySelector("#qr-box canvas");
+
+            if (!qrImg && !qrCanvas) {
+                alert("Please generate a QR code first!");
+                return;
+            }
+
+            let downloadLink = document.createElement("a");
+            downloadLink.download = "qrcode.png";
+
+            if (qrImg && qrImg.src) {
+                downloadLink.href = qrImg.src;
+                downloadLink.click();
+            } else if (qrCanvas) {
+                downloadLink.href = qrCanvas.toDataURL("image/png");
+                downloadLink.click();
+            }
+        }
+
+        async function shareQR() {
+            let qrCanvas = document.querySelector("#qr-box canvas");
+            if (!qrCanvas) {
+                alert("Please generate a QR code first!");
+                return;
+            }
+
+            try {
+                qrCanvas.toBlob(async (blob) => {
+                    const file = new File([blob], "qrcode.png", { type: "image/png" });
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'My QR Code',
+                            text: 'Check out this QR Code generated instantly!'
+                        });
+                    } else {
+                        let text = document.getElementById("text").value;
+                        await navigator.clipboard.writeText(text);
+                        alert("Sharing files not supported on this browser. Text copied to clipboard instead!");
+                    }
+                }, "image/png");
+            } catch (err) {
+                console.error("Error sharing:", err);
+            }
+        }
+    </script>
+
+</body>
+
+</html>
